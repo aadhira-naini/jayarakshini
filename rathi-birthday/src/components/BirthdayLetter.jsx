@@ -42,7 +42,7 @@ export default function BirthdayLetter() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, #0a0a1a 0%, #0d0020 50%, #0a0a1a 100%)',
+        background: 'linear-gradient(180deg, rgba(10,10,26,0.3) 0%, rgba(13,0,32,0.4) 50%, rgba(10,10,26,0.3) 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

@@ -36,7 +36,7 @@ export default function NeverToldYou() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'radial-gradient(ellipse at 30% 70%, #1a0a2e 0%, #0a0a1a 80%)',
+        background: 'radial-gradient(ellipse at 30% 70%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 80%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

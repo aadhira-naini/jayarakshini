@@ -65,7 +65,7 @@ export default function FinalSurprise() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'radial-gradient(ellipse at 50% 50%, #1a0a2e 0%, #0a0a1a 100%)',
+        background: 'radial-gradient(ellipse at 50% 50%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

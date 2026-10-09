@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const stars = [
@@ -12,11 +12,22 @@ const stars = [
   { reason: 'You care deeply', detail: 'Even when it hurts you. Even when no one sees. You care so deeply it\'s almost reckless. It\'s beautiful.' },
 ];
 
-function Star({ star, index, isOpen, onClick }) {
-  const angle = (index / stars.length) * 360;
-  const radius = window.innerWidth < 600 ? 120 : 190;
-  const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
-  const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
+function OrbitingStar({ star, index, total, isOpen, onClick, time }) {
+  const baseAngle = (index / total) * 360;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+  const baseRadius = isMobile ? 120 : 190;
+
+  // Each star orbits at its own speed and has a bobbing radius
+  const speed = 0.15 + index * 0.03;
+  const currentAngle = baseAngle + time * speed;
+  const radiusWobble = Math.sin(time * 0.5 + index * 0.8) * 20;
+  const radius = baseRadius + radiusWobble;
+
+  const x = Math.cos((currentAngle - 90) * Math.PI / 180) * radius;
+  const y = Math.sin((currentAngle - 90) * Math.PI / 180) * radius;
+
+  // Slight scale pulsing
+  const pulse = 1 + Math.sin(time * 0.8 + index * 1.2) * 0.15;
 
   return (
     <motion.div
@@ -32,15 +43,9 @@ function Star({ star, index, isOpen, onClick }) {
       }}
     >
       <motion.button
-        whileHover={{ scale: 1.3 }}
+        whileHover={{ scale: 1.4 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => onClick(index)}
-        animate={{
-          boxShadow: isOpen
-            ? ['0 0 20px #fbbf24', '0 0 40px #fbbf24', '0 0 20px #fbbf24']
-            : ['0 0 6px #fbbf2466', '0 0 12px #fbbf2466', '0 0 6px #fbbf2466'],
-        }}
-        transition={{ duration: 2, repeat: Infinity }}
         style={{
           width: 48,
           height: 48,
@@ -55,6 +60,10 @@ function Star({ star, index, isOpen, onClick }) {
           cursor: 'pointer',
           fontSize: '1.4rem',
           transition: 'background 0.3s, border 0.3s',
+          boxShadow: isOpen
+            ? '0 0 30px #fbbf24, 0 0 60px #fbbf2444'
+            : `0 0 ${6 + pulse * 6}px #fbbf2466`,
+          transform: `scale(${pulse})`,
         }}
       >
         ⭐
@@ -65,6 +74,22 @@ function Star({ star, index, isOpen, onClick }) {
 
 export default function WhySpecial() {
   const [openStar, setOpenStar] = useState(null);
+  const [time, setTime] = useState(0);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    let lastTime = performance.now();
+    const animate = (now) => {
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      setTime(prev => prev + delta);
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   const toggle = (i) => setOpenStar(prev => prev === i ? null : i);
 
@@ -73,7 +98,7 @@ export default function WhySpecial() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'radial-gradient(ellipse at 50% 50%, #1a0a2e 0%, #0a0a1a 80%)',
+        background: 'radial-gradient(ellipse at 50% 50%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 80%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -92,11 +117,11 @@ export default function WhySpecial() {
           Why You're Special to Me
         </h2>
         <p style={{ color: '#c4b5fd', marginTop: 12, opacity: 0.7 }}>
-          Click the stars to discover what I see in you ⭐
+          Click the orbiting stars to discover what I see in you ⭐
         </p>
       </motion.div>
 
-      {/* Star constellation */}
+      {/* Orbiting Star constellation */}
       <div style={{
         position: 'relative',
         width: 'clamp(300px, 90vw, 500px)',
@@ -105,8 +130,8 @@ export default function WhySpecial() {
       }}>
         {/* Center moon */}
         <motion.div
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
           style={{
             position: 'absolute',
             left: '50%',
@@ -120,14 +145,36 @@ export default function WhySpecial() {
           🌙
         </motion.div>
 
-        {/* Stars */}
+        {/* Orbit trail rings */}
+        {[0.7, 0.85, 1].map((scale, i) => (
+          <motion.div
+            key={i}
+            animate={{ opacity: [0.05, 0.15, 0.05] }}
+            transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: `${scale * 100}%`,
+              height: `${scale * 100}%`,
+              borderRadius: '50%',
+              border: '1px solid rgba(251,191,36,0.15)',
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+
+        {/* Orbiting Stars */}
         {stars.map((star, i) => (
-          <Star
+          <OrbitingStar
             key={i}
             star={star}
             index={i}
+            total={stars.length}
             isOpen={openStar === i}
             onClick={toggle}
+            time={time}
           />
         ))}
       </div>
@@ -181,7 +228,7 @@ export default function WhySpecial() {
           animate={{ opacity: 0.5 }}
           style={{ color: '#a78bfa', fontSize: '0.9rem', marginTop: 20 }}
         >
-          Touch any star above 👆
+          Touch any orbiting star above 👆
         </motion.p>
       )}
     </section>

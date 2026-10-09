@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Add your image paths here (place images in /public/photos/)
 const photos = [
   {
     src: '/photos/photo1.jpg',
@@ -47,96 +46,60 @@ const photos = [
   },
 ];
 
-function PolaroidCard({ photo, index, onClick }) {
-  const rotate = (index % 2 === 0 ? -1 : 1) * (Math.random() * 4 + 1);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, rotate: rotate * 0.5 }}
-      whileInView={{ opacity: 1, y: 0, rotate }}
-      whileHover={{ scale: 1.05, rotate: 0, zIndex: 10 }}
-      viewport={{ once: true, margin: '-30px' }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      onClick={() => onClick(index)}
-      style={{
-        cursor: 'pointer',
-        background: '#fff',
-        padding: '12px 12px 40px',
-        borderRadius: 4,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.3)',
-        width: 'clamp(140px, 30vw, 200px)',
-        position: 'relative',
-        flexShrink: 0,
-      }}
-    >
-      {/* Photo area */}
-      <div style={{
-        width: '100%',
-        aspectRatio: '1/1',
-        background: 'linear-gradient(135deg, #1a0a2e, #0d0d2b)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '3rem',
-        borderRadius: 2,
-        overflow: 'hidden',
-      }}>
-        <img
-          src={photo.src}
-          alt={photo.caption}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={e => {
-            e.target.style.display = 'none';
-            e.target.parentNode.querySelector('.placeholder-emoji').style.display = 'flex';
-          }}
-        />
-        <span
-          className="placeholder-emoji"
-          style={{
-            display: 'none',
-            position: 'absolute',
-            inset: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '3rem',
-          }}
-        >
-          {photo.placeholder}
-        </span>
-      </div>
-      {/* Caption */}
-      <p style={{
-        textAlign: 'center',
-        marginTop: 10,
-        fontFamily: "'Dancing Script', cursive",
-        fontSize: '0.85rem',
-        color: '#333',
-        lineHeight: 1.3,
-      }}>
-        {photo.caption}
-      </p>
-    </motion.div>
-  );
-}
-
 export default function MemoryGallery() {
   const [selected, setSelected] = useState(null);
+  const [rotation, setRotation] = useState(0);
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const rafRef = useRef(null);
+  const lastTimeRef = useRef(performance.now());
+
+  useEffect(() => {
+    if (!isAutoRotating) return;
+    const animate = (now) => {
+      const delta = (now - lastTimeRef.current) / 1000;
+      lastTimeRef.current = now;
+      setRotation(prev => prev + delta * 15); // 15 degrees per second
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    lastTimeRef.current = performance.now();
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [isAutoRotating]);
+
+  const handleCardClick = (index) => {
+    setIsAutoRotating(false);
+    setSelected(index);
+  };
+
+  const closeModal = () => {
+    setSelected(null);
+    setIsAutoRotating(true);
+  };
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+  const radius = isMobile ? 140 : 260;
+  const cardW = isMobile ? 120 : 180;
 
   return (
     <section
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, #0d0d2b, #111133, #0a0a1a)',
+        background: 'linear-gradient(180deg, rgba(13,13,43,0.3), rgba(17,17,51,0.4), rgba(10,10,26,0.3))',
         position: 'relative',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        style={{ textAlign: 'center', marginBottom: 60 }}
+        style={{ textAlign: 'center', marginBottom: 40, zIndex: 2 }}
       >
         <p style={{ color: '#a78bfa', letterSpacing: 4, fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: 12 }}>
           Polaroid Wall
@@ -149,19 +112,100 @@ export default function MemoryGallery() {
         </p>
       </motion.div>
 
-      {/* Polaroid grid */}
+      {/* Circular rotating carousel */}
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 32,
-        justifyContent: 'center',
-        maxWidth: 900,
+        position: 'relative',
+        width: radius * 2 + cardW + 40,
+        height: radius * 2 + cardW + 40,
+        maxWidth: '95vw',
+        maxHeight: '95vw',
         margin: '0 auto',
-        padding: '20px 0 40px',
       }}>
-        {photos.map((photo, i) => (
-          <PolaroidCard key={i} photo={photo} index={i} onClick={setSelected} />
-        ))}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          {/* Orbit ring */}
+          <div style={{
+            position: 'absolute',
+            width: radius * 2,
+            height: radius * 2,
+            borderRadius: '50%',
+            border: '1px solid rgba(168,85,247,0.1)',
+          }} />
+
+          {photos.map((photo, i) => {
+            const angle = (i / photos.length) * 360 + rotation;
+            const rad = (angle - 90) * Math.PI / 180;
+            const x = Math.cos(rad) * radius;
+            const y = Math.sin(rad) * radius;
+            // Scale based on position (front = bigger)
+            const normalizedY = (y + radius) / (radius * 2);
+            const scale = 0.6 + normalizedY * 0.5;
+            const zIdx = Math.round(normalizedY * 10);
+            const tilt = Math.sin(rad) * 8;
+
+            return (
+              <motion.div
+                key={i}
+                onClick={() => handleCardClick(i)}
+                whileHover={{ scale: scale * 1.1 }}
+                style={{
+                  position: 'absolute',
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  transform: `translate(-50%, -50%) scale(${scale}) rotate(${tilt}deg)`,
+                  cursor: 'pointer',
+                  background: '#fff',
+                  padding: '8px 8px 28px',
+                  borderRadius: 4,
+                  boxShadow: `0 ${4 + zIdx}px ${16 + zIdx * 2}px rgba(0,0,0,${0.3 + normalizedY * 0.3})`,
+                  width: cardW,
+                  zIndex: zIdx,
+                  transition: 'transform 0.1s linear',
+                }}
+              >
+                <div style={{
+                  width: '100%',
+                  aspectRatio: '1/1',
+                  background: 'linear-gradient(135deg, rgba(26,10,46,0.8), rgba(13,13,43,0.8))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2.5rem',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}>
+                  <img
+                    src={photo.src}
+                    alt={photo.caption}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={e => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span style={{ position: 'absolute', fontSize: '2.5rem', pointerEvents: 'none' }}>
+                    {photo.placeholder}
+                  </span>
+                </div>
+                <p style={{
+                  textAlign: 'center',
+                  marginTop: 6,
+                  fontFamily: "'Dancing Script', cursive",
+                  fontSize: '0.75rem',
+                  color: '#333',
+                  lineHeight: 1.3,
+                }}>
+                  {photo.caption}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Modal */}
@@ -171,7 +215,7 @@ export default function MemoryGallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
+            onClick={closeModal}
             style={{
               position: 'fixed',
               inset: 0,
@@ -239,12 +283,11 @@ export default function MemoryGallery() {
                 textAlign: 'center',
                 lineHeight: 1.7,
                 fontSize: '0.95rem',
-                fontFamily: "'Inter', sans-serif",
               }}>
                 {photos[selected].story}
               </p>
               <button
-                onClick={() => setSelected(null)}
+                onClick={closeModal}
                 style={{
                   display: 'block',
                   margin: '20px auto 0',
@@ -270,6 +313,7 @@ export default function MemoryGallery() {
         fontSize: '0.8rem',
         marginTop: 20,
         opacity: 0.6,
+        zIndex: 2,
       }}>
         📁 Add your photos in <code>/public/photos/</code> — name them photo1.jpg through photo6.jpg
       </p>

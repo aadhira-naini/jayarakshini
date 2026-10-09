@@ -66,7 +66,7 @@ export default function Timeline() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, #0a0a1a 0%, #0d0d2b 50%, #0a0a1a 100%)',
+        background: 'linear-gradient(180deg, rgba(10,10,26,0.3) 0%, rgba(13,13,43,0.4) 50%, rgba(10,10,26,0.3) 100%)',
         position: 'relative',
       }}
     >
