@@ -4,16 +4,15 @@ import * as THREE from 'three';
 // ─── Shape point generators ──────────────────────────────────────────────────
 function getMoonPoints(count) {
   const pts = [];
-  for (let i = 0; i < count; i++) {
-    const t = (i / count) * Math.PI * 2;
-    const r = 160 + Math.random() * 18;
-    const x = Math.cos(t) * r;
-    const y = Math.sin(t) * r;
-    const bite = Math.cos(t - 0.6) * 130 + 60;
-    if (x < bite) {
-      pts.push([x + (Math.random() - 0.5) * 10, y + (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 20]);
-    } else {
-      pts.push([(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 20]);
+  const R = 160;
+  const r = 130;
+  const offset = 60;
+  
+  while (pts.length < count) {
+    const x = (Math.random() - 0.5) * 2 * R;
+    const y = (Math.random() - 0.5) * 2 * R;
+    if (x * x + y * y <= R * R && (x - offset) * (x - offset) + y * y >= r * r) {
+      pts.push([x + 30, y, (Math.random() - 0.5) * 20]);
     }
   }
   return pts;
@@ -297,6 +296,16 @@ const StarsBg = () => {
     const pMesh = new THREE.Points(pGeo, pMat);
     scene.add(pMesh);
 
+    // Responsive scaling for interactive shapes
+    const updateShapeScale = () => {
+      let s = 1.5; // Target is approx 1.5x bigger
+      if (window.innerWidth < 768) {
+        s = Math.max(1.1, (window.innerWidth / 768) * 1.5);
+      }
+      pMesh.scale.set(s, s, s);
+    };
+    updateShapeScale();
+
     // ── Shape state machine ────────────────────────────────────────────────
     let shapeIdx      = 0;
     let morphT        = 0;   // 0→1 morph progress
@@ -374,6 +383,7 @@ const StarsBg = () => {
       camera.updateProjectionMatrix();
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
       renderer.setSize(window.innerWidth, window.innerHeight);
+      updateShapeScale();
     };
     const onMouseClick = (e) => {
       if (e.target.closest('button, a, input, textarea, select')) return;
@@ -419,6 +429,7 @@ const StarsBg = () => {
       const ray = new THREE.Vector3(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position).normalize();
       const tDist = -camera.position.z / ray.z;
       mouse3D.copy(camera.position).addScaledVector(ray, tDist);
+      mouse3D.divideScalar(pMesh.scale.x); // Convert world to local space for proper physics
 
       // ── Shape cycle ──────────────────────────────────────────────────────
       cycleTimer += dt;

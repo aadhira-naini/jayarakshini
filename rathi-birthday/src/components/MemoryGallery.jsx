@@ -3,42 +3,42 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const photos = [
   {
-    src: '/photos/photo1.jpg',
+    src: '/photos/photo1.jpeg',
     caption: 'This picture looks normal…',
     story: 'But only we know what happened 5 minutes before this 😂 Every photo hides a whole story.',
     date: 'A day I won\'t forget',
     placeholder: '📸',
   },
   {
-    src: '/photos/photo2.jpg',
+    src: '/photos/photo2.jpeg',
     caption: 'Caught in the act ✨',
     story: 'This was one of those moments where we both looked at each other and just knew. No words needed.',
     date: 'Random afternoon',
     placeholder: '🌙',
   },
   {
-    src: '/photos/photo3.jpg',
+    src: '/photos/photo3.jpeg',
     caption: 'Look at us 🥹',
     story: 'I didn\'t know at the time that this would become one of my favourite memories. But here we are.',
     date: 'That one day',
     placeholder: '💙',
   },
   {
-    src: '/photos/photo4.jpg',
+    src: '/photos/photo4.jpeg',
     caption: 'The chaos 😭',
     story: 'Pure, unfiltered chaos. I wouldn\'t change a single second of it.',
     date: 'When we lost our minds',
     placeholder: '⚡',
   },
   {
-    src: '/photos/photo5.jpg',
+    src: '/photos/photo5.jpeg',
     caption: 'My favourite kind of moment',
     story: 'The quiet ones. The ones no one else sees. Those are mine to keep.',
     date: 'A quiet day',
     placeholder: '🌸',
   },
   {
-    src: '/photos/photo6.jpg',
+    src: '/photos/photo6.jpeg',
     caption: 'Evidence 😂',
     story: 'I have no explanation for this. I don\'t think either of us do. And that\'s exactly what makes it perfect.',
     date: 'Chaotic era',
@@ -315,7 +315,7 @@ export default function MemoryGallery() {
         opacity: 0.6,
         zIndex: 2,
       }}>
-        📁 Add your photos in <code>/public/photos/</code> — name them photo1.jpg through photo6.jpg
+        📁 Add your photos in <code>/public/photos/</code> — name them photo1.jpeg through photo6.jpeg
       </p>
     </section>
   );

@@ -41,7 +41,7 @@ function SectionDivider({ emoji = '✨', label }) {
 
 export default function App() {
   const [lampOn, setLampOn] = useState(false);
-  const [gateCleared, setGateCleared] = useState(false);
+  const [gateCleared, setGateCleared] = useState(true);
   const [opened, setOpened] = useState(false);
 
   const { scrollYProgress } = useScroll();

@@ -70,7 +70,7 @@ const STAR_DATA = Array.from({ length: 120 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: 1 + Math.random() * 2.5,
+  size: (1 + Math.random() * 2.5) * 1.4,
   dur: 1.8 + Math.random() * 3,
   delay: Math.random() * 4,
   brightness: 0.5 + Math.random() * 0.5,
@@ -132,11 +132,11 @@ function Moon() {
       </div>
       {/* Nearby sparkle stars */}
       {[
-        { top: '-22%', left: '-32%', size: 4 },
-        { top: '8%',   left: '-42%', size: 3 },
-        { top: '-32%', left: '8%',   size: 3 },
-        { top: '118%', left: '-28%', size: 2.5 },
-        { top: '-8%',  right: '-38%', size: 2.5 },
+        { top: '-22%', left: '-32%', size: 5.6 },
+        { top: '8%',   left: '-42%', size: 4.2 },
+        { top: '-32%', left: '8%',   size: 4.2 },
+        { top: '118%', left: '-28%', size: 3.5 },
+        { top: '-8%',  right: '-38%', size: 3.5 },
       ].map((s, i) => (
         <motion.div
           key={i}

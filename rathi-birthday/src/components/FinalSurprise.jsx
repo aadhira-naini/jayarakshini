@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 const finalPhotos = [
-  { src: '/photos/photo1.jpg', emoji: '🌙' },
+  { src: '/photos/photo1.jpeg', emoji: '🌙' },
   { src: '/photos/photo2.jpg', emoji: '💙' },
   { src: '/photos/photo3.jpg', emoji: '✨' },
   { src: '/photos/photo4.jpg', emoji: '🎉' },

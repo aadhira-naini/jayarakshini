@@ -280,6 +280,52 @@ function VideoReward({ onDone }) {
   );
 }
 
+/* ─── Final correct-answer love video ────────────────────────────── */
+function LoveVideo({ onDone }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    let t;
+    if (ref.current) {
+      ref.current.currentTime = 0;
+      ref.current.play().catch(() => {
+        t = setTimeout(() => { if (ref.current) ref.current.pause(); onDone(); }, 8000);
+      });
+    }
+    return () => { if (t) clearTimeout(t); };
+  }, [onDone]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{   opacity: 0, scale: 0.7 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+      style={{
+        position: 'relative',
+        width: '100%', maxWidth: 290, borderRadius: 18, overflow: 'hidden',
+        border: '2px solid rgba(236,72,153,0.8)',
+        boxShadow: '0 0 50px rgba(236,72,153,0.5)',
+        marginBottom: 16,
+      }}
+    >
+      <video ref={ref} src="/video/love.mp4"
+        playsInline style={{ width: '100%', display: 'block' }} onEnded={onDone} />
+      <button 
+        onClick={onDone}
+        style={{
+          position: 'absolute', top: 8, right: 8,
+          background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+          color: 'white', width: 28, height: 28, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '14px', zIndex: 10, padding: 0
+        }}
+      >
+        ✕
+      </button>
+    </motion.div>
+  );
+}
+
 /* ─── Wrong-answer angry bird video ──────────────────────────────── */
 function AngryBirdVideo({ onDone }) {
   const ref = useRef(null);
@@ -348,6 +394,53 @@ function AngryBird2Video({ onDone }) {
         transition={{ duration: 5, ease: 'linear' }}
         style={{ height: 3, background: 'linear-gradient(90deg,#dc2626,#ef4444,#f97316)', transformOrigin: 'left' }}
       />
+    </motion.div>
+  );
+}
+
+/* ─── Third wrong-answer angry bird 3 video (angry_3.mp4) ────────── */
+function AngryBird3Video({ onDone }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    let t;
+    if (ref.current) {
+      ref.current.currentTime = 0;
+      ref.current.play().catch(() => {
+        // Fallback safety timeout if autoplay with sound fails
+        t = setTimeout(() => { if (ref.current) ref.current.pause(); onDone(); }, 5000);
+      });
+    }
+    return () => { if (t) clearTimeout(t); };
+  }, [onDone]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{   opacity: 0, scale: 0.7 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+      style={{
+        position: 'relative',
+        width: '100%', maxWidth: 240, borderRadius: 18, overflow: 'hidden',
+        border: '2px solid rgba(220,38,38,0.9)',
+        boxShadow: '0 0 60px rgba(220,38,38,0.6)',
+        marginBottom: 16,
+      }}
+    >
+      <video ref={ref} src="/video/angry_3.mp4"
+        playsInline style={{ width: '100%', display: 'block' }} onEnded={onDone} />
+      <button 
+        onClick={onDone}
+        style={{
+          position: 'absolute', top: 8, right: 8,
+          background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+          color: 'white', width: 28, height: 28, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '14px', zIndex: 10, padding: 0
+        }}
+      >
+        ✕
+      </button>
     </motion.div>
   );
 }
@@ -515,16 +608,22 @@ export default function BestFriendGate({ onPass }) {
       setToast({ msg: QUESTIONS[step].correctMsg, on: true });
       setTimeout(() => setToast(v => ({ ...v, on: false })), 1000);
       setWrongCount(0);
-      setPhase('video');
+      if (step === QUESTIONS.length - 1) {
+        setPhase('lovevideo');
+      } else {
+        setPhase('video');
+      }
     } else {
       // Last question "Let me reconsider" → please video
       if (isLastQRefusal) {
         setPhase('pleasevideo');
       } else {
-        // 1st wrong → angryvideo, 2nd+ wrong → angryvideo2
+        // 1st wrong → angryvideo, 2nd wrong → angryvideo2, 3rd+ wrong → angryvideo3
         setWrongCount(prev => {
           const next = prev + 1;
-          setPhase(next >= 2 ? 'angryvideo2' : 'angryvideo');
+          if (next === 1) setPhase('angryvideo');
+          else if (next === 2) setPhase('angryvideo2');
+          else setPhase('angryvideo3');
           return next;
         });
       }
@@ -558,6 +657,11 @@ export default function BestFriendGate({ onPass }) {
     setPhase('question');
   }, []);
 
+  // After angry bird 3 video finishes → return to question
+  const handleAngryVideo3Done = useCallback(() => {
+    setPhase('question');
+  }, []);
+
   // After please video finishes → return to question
   const handlePleaseVideoDone = useCallback(() => {
     setPhase('question');
@@ -565,7 +669,7 @@ export default function BestFriendGate({ onPass }) {
 
   /* ── Derived ────────────────────────────────────────────────── */
   const q            = QUESTIONS[step];
-  const showQuestion = ['question', 'video', 'angryvideo', 'angryvideo2', 'pleasevideo', 'correct'].includes(phase);
+  const showQuestion = ['question', 'video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo', 'correct'].includes(phase);
   const imgSrc       = (i) => processedImgs[i] || RAW_IMAGES[i];
 
   /* ─────────────────────────────────────────────────────────── */
@@ -762,6 +866,11 @@ export default function BestFriendGate({ onPass }) {
                 {phase === 'video' && <VideoReward onDone={handleVideoDone} />}
               </AnimatePresence>
 
+              {/* ── Final correct-answer love video ── */}
+              <AnimatePresence>
+                {phase === 'lovevideo' && <LoveVideo onDone={handleVideoDone} />}
+              </AnimatePresence>
+
               {/* ── Wrong-answer angry bird video ── */}
               <AnimatePresence>
                 {phase === 'angryvideo' && <AngryBirdVideo onDone={handleAngryVideoDone} />}
@@ -772,13 +881,18 @@ export default function BestFriendGate({ onPass }) {
                 {phase === 'angryvideo2' && <AngryBird2Video onDone={handleAngryVideo2Done} />}
               </AnimatePresence>
 
+              {/* ── Third wrong-answer angry bird 3 video ── */}
+              <AnimatePresence>
+                {phase === 'angryvideo3' && <AngryBird3Video onDone={handleAngryVideo3Done} />}
+              </AnimatePresence>
+
               {/* ── Last-question refusal "please" video ── */}
               <AnimatePresence>
                 {phase === 'pleasevideo' && <PleaseVideo onDone={handlePleaseVideoDone} />}
               </AnimatePresence>
 
               {/* Caught butterfly images (not during videos) — two straight, no rotation */}
-              {!['video', 'angryvideo', 'pleasevideo', 'angryvideo2'].includes(phase) && (
+              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <div style={{ display: 'flex', gap: 18, marginBottom: 18, alignItems: 'center' }}>
                   {[caughtIdx, (caughtIdx + 1) % RAW_IMAGES.length].map((idx, i) => (
                     <motion.div
@@ -813,6 +927,18 @@ export default function BestFriendGate({ onPass }) {
                   🎉 Correct! Enjoy this little moment…
                 </motion.p>
               )}
+              {phase === 'lovevideo' && (
+                <motion.p
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  style={{
+                    textAlign: 'center', color: '#f472b6',
+                    fontFamily: "'Dancing Script', cursive", fontSize: '1.12rem',
+                    marginTop: 8,
+                  }}
+                >
+                  💖 You made it...
+                </motion.p>
+              )}
               {phase === 'angryvideo' && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -837,6 +963,18 @@ export default function BestFriendGate({ onPass }) {
                   😡😡 AGAIN?! Are you serious right now…
                 </motion.p>
               )}
+              {phase === 'angryvideo3' && (
+                <motion.p
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  style={{
+                    textAlign: 'center', color: '#dc2626',
+                    fontFamily: "'Dancing Script', cursive", fontSize: '1.12rem',
+                    marginTop: 8,
+                  }}
+                >
+                  😡😡😡 THIRD STRIKE?! What is wrong with you...
+                </motion.p>
+              )}
               {phase === 'pleasevideo' && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -851,7 +989,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Step label */}
-              {!['video', 'angryvideo', 'angryvideo2', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <p style={{
                   fontFamily: "'Inter', sans-serif",
                   fontSize: '0.68rem',
@@ -864,7 +1002,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Title */}
-              {!['video', 'angryvideo', 'angryvideo2', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <h2 style={{
                   fontFamily: "'Playfair Display', serif",
                   color: '#fbbf24',
@@ -878,7 +1016,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Subtitle */}
-              {!['video', 'angryvideo', 'angryvideo2', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <p style={{
                   fontFamily: "'Inter', sans-serif",
                   color: 'rgba(240,232,255,0.72)',
