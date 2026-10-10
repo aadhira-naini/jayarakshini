@@ -135,6 +135,13 @@ const StarsBg = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    const mount = mountRef.current;
+    if (!mount) return undefined;
+
+    // Lower pixel-ratio cap on phones/tablets keeps the animation smooth.
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+    const maxDpr = isTouchDevice ? 1.5 : 2;
+
     // ── Scene / Camera / Renderer ─────────────────────────────────────────
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2('#050510', 0.0006);
@@ -142,10 +149,18 @@ const StarsBg = () => {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
     camera.position.z = 600;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // If WebGL is unavailable, skip the background instead of crashing the whole site.
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (err) {
+      console.warn('StarsBg: WebGL unavailable, background disabled.', err);
+      return undefined;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    if (mountRef.current) mountRef.current.appendChild(renderer.domElement);
+    renderer.domElement.style.display = 'block';
+    mount.appendChild(renderer.domElement);
 
     // ── Background twinkling stars ─────────────────────────────────────────
     const STAR_COUNT = 700;
@@ -342,6 +357,7 @@ const StarsBg = () => {
 
     const mouse3D = new THREE.Vector3();
 
+    // Pointer events cover mouse, touch and pen with one handler.
     const onMouseMove = (e) => {
       mouseActive = true;
       camMouseX = (e.clientX - window.innerWidth  / 2) * 0.025;
@@ -349,10 +365,14 @@ const StarsBg = () => {
       ndcX =  (e.clientX / window.innerWidth)  * 2 - 1;
       ndcY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
+    // A finger lifting means "no cursor" — stop repelling particles.
+    const onPointerEnd = (e) => { if (e.pointerType !== 'mouse') mouseActive = false; };
+    const onMouseLeave = () => { mouseActive = false; };
     const onScroll = () => { scrollY = window.scrollY; };
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
     const onMouseClick = (e) => {
@@ -361,10 +381,13 @@ const StarsBg = () => {
       shapeIdx = (shapeIdx + 1) % SHAPES.length;
       applyShape(SHAPES[shapeIdx]);
     };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseleave', () => { mouseActive = false; });
+    document.addEventListener('pointermove', onMouseMove, { passive: true });
+    document.addEventListener('pointerdown', onMouseMove, { passive: true });
+    document.addEventListener('pointerup', onPointerEnd, { passive: true });
+    document.addEventListener('pointercancel', onPointerEnd, { passive: true });
+    document.documentElement.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('click', onMouseClick);
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
 
     // ── Animation loop ─────────────────────────────────────────────────────
@@ -485,12 +508,16 @@ const StarsBg = () => {
     // ── Cleanup ────────────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(animId);
-      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('pointermove', onMouseMove);
+      document.removeEventListener('pointerdown', onMouseMove);
+      document.removeEventListener('pointerup', onPointerEnd);
+      document.removeEventListener('pointercancel', onPointerEnd);
+      document.documentElement.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('click', onMouseClick);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (renderer.domElement.parentNode === mount) {
+        mount.removeChild(renderer.domElement);
       }
       renderer.dispose();
       scene.clear();
@@ -504,7 +531,8 @@ const StarsBg = () => {
   return (
     <div
       ref={mountRef}
-      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0, pointerEvents: 'none' }}
+      aria-hidden="true"
+      style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}
     />
   );
 };
