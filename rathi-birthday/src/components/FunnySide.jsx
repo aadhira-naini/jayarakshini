@@ -51,7 +51,7 @@ export default function FunnySide() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, rgba(10,10,26,0.3) 0%, rgba(17,17,51,0.4) 50%, rgba(10,10,26,0.3) 100%)',
+        background: 'transparent',
         position: 'relative',
         overflow: 'hidden',
       }}

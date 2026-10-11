@@ -1,5 +1,210 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { motion } from 'framer-motion';
+
+// ─── Celestial Starfield for infinite scrolling background ────────────────────
+function seededRandom(seed) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const rng = seededRandom(99);
+
+const DISTANT_STARS = Array.from({ length: 160 }, (_, i) => ({
+  id: `bg-dist-${i}`,
+  x: +(rng() * 100).toFixed(2),
+  y: +(rng() * 100).toFixed(2),
+  size: +(1.0 + rng() * 1.1).toFixed(1),
+  dur: +(1.6 + rng() * 2.4).toFixed(2),
+  delay: +(rng() * 3.5).toFixed(2),
+  minOp: +(0.45 + rng() * 0.25).toFixed(2),
+  maxOp: +(0.85 + rng() * 0.15).toFixed(2),
+  color: rng() > 0.35 ? '#ffffff' : rng() > 0.5 ? '#dbeafe' : '#fef08a',
+}));
+
+const MID_STARS = Array.from({ length: 85 }, (_, i) => ({
+  id: `bg-mid-${i}`,
+  x: +(rng() * 100).toFixed(2),
+  y: +(rng() * 100).toFixed(2),
+  size: +(2.0 + rng() * 1.5).toFixed(1),
+  dur: +(2.0 + rng() * 2.6).toFixed(2),
+  delay: +(rng() * 3.5).toFixed(2),
+  color: rng() > 0.4 ? '#ffffff' : rng() > 0.5 ? '#e0f2fe' : '#fef9c3',
+}));
+
+const HERO_STARS = Array.from({ length: 24 }, (_, i) => ({
+  id: `bg-hero-${i}`,
+  x: +(rng() * 94 + 3).toFixed(2),
+  y: +(rng() * 94 + 3).toFixed(2),
+  size: +(3.5 + rng() * 1.8).toFixed(1),
+  dur: +(2.0 + rng() * 2.0).toFixed(2),
+  delay: +(rng() * 3.0).toFixed(2),
+  color: rng() > 0.5 ? '#ffffff' : rng() > 0.5 ? '#fde047' : '#93c5fd',
+}));
+
+const CROSS_STARS = [
+  { x: 10, y: 16, size: 16, delay: 0.2, color: '#fef08a' },
+  { x: 24, y: 10, size: 14, delay: 1.5, color: '#ffffff' },
+  { x: 40, y: 18, size: 18, delay: 0.8, color: '#e0f2fe' },
+  { x: 70, y: 22, size: 15, delay: 2.1, color: '#fef9c3' },
+  { x: 86, y: 36, size: 14, delay: 1.1, color: '#ffffff' },
+  { x: 14, y: 63, size: 16, delay: 2.6, color: '#fde047' },
+  { x: 32, y: 78, size: 13, delay: 0.5, color: '#ffffff' },
+  { x: 58, y: 74, size: 17, delay: 1.9, color: '#e9d5ff' },
+  { x: 80, y: 80, size: 15, delay: 2.8, color: '#fef08a' },
+  { x: 90, y: 14, size: 14, delay: 0.4, color: '#ffffff' },
+];
+
+function DistantStars() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      {DISTANT_STARS.map((s) => (
+        <motion.div
+          key={s.id}
+          animate={{ opacity: [s.minOp, s.maxOp, s.minOp] }}
+          transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: s.size,
+            height: s.size,
+            borderRadius: '50%',
+            background: s.color,
+            boxShadow: `0 0 ${s.size * 2}px ${s.color}`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MidStars() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      {MID_STARS.map((s) => (
+        <motion.div
+          key={s.id}
+          animate={{ opacity: [0.55, 1, 0.55], scale: [0.92, 1.25, 0.92] }}
+          transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: s.size,
+            height: s.size,
+            borderRadius: '50%',
+            background: s.color,
+            boxShadow: `0 0 5px ${s.color}, 0 0 10px rgba(255, 255, 255, 0.65)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CrossSparkleStar({ x, y, size = 14, delay = 0, color = '#ffffff' }) {
+  return (
+    <motion.div
+      animate={{
+        opacity: [0.55, 1, 0.55],
+        scale: [0.85, 1.25, 0.85],
+        rotate: [0, 15, -15, 0],
+      }}
+      transition={{
+        duration: 3 + (delay % 2),
+        delay,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+      style={{
+        position: 'absolute',
+        left: `${x}%`,
+        top: `${y}%`,
+        width: size,
+        height: size,
+        pointerEvents: 'none',
+        transformOrigin: 'center center',
+      }}
+    >
+      <svg viewBox="0 0 24 24" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+        <path
+          d="M12 0 C12 7 7 12 0 12 C7 12 12 17 12 24 C12 17 17 12 24 12 C17 12 12 7 12 0 Z"
+          fill={color}
+          style={{ filter: `drop-shadow(0 0 4px ${color}) drop-shadow(0 0 8px rgba(255,255,255,0.85))` }}
+        />
+        <circle cx="12" cy="12" r="2" fill="#ffffff" />
+      </svg>
+    </motion.div>
+  );
+}
+
+function HeroStars() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      {HERO_STARS.map((s) => (
+        <motion.div
+          key={s.id}
+          animate={{
+            opacity: [0.7, 1, 0.7],
+            scale: [1, 1.35, 1],
+          }}
+          transition={{ duration: s.dur, delay: s.delay, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute',
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: s.size,
+            height: s.size,
+            borderRadius: '50%',
+            background: s.color,
+            boxShadow: `0 0 8px #ffffff, 0 0 16px rgba(168, 85, 247, 0.65), 0 0 24px rgba(59, 130, 246, 0.4)`,
+          }}
+        />
+      ))}
+      {CROSS_STARS.map((s, idx) => (
+        <CrossSparkleStar key={idx} x={s.x} y={s.y} size={s.size} delay={s.delay} color={s.color} />
+      ))}
+    </div>
+  );
+}
+
+function ShootingStar({ top, left, delay, duration = 6.5 }) {
+  return (
+    <motion.div
+      initial={{ x: 0, y: 0, opacity: 0, scale: 0.6 }}
+      animate={{
+        x: [0, 320],
+        y: [0, 240],
+        opacity: [0, 1, 0.9, 0],
+        scale: [0.6, 1.1, 1, 0.2],
+      }}
+      transition={{
+        duration: 1.1,
+        delay,
+        repeat: Infinity,
+        repeatDelay: duration,
+        ease: 'easeOut',
+      }}
+      style={{
+        position: 'absolute',
+        top: `${top}%`,
+        left: `${left}%`,
+        width: 110,
+        height: 2,
+        background: 'linear-gradient(90deg, #ffffff 0%, rgba(254, 240, 138, 0.9) 20%, rgba(168, 85, 247, 0.4) 60%, transparent 100%)',
+        transform: 'rotate(34deg)',
+        transformOrigin: 'left center',
+        filter: 'drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 10px rgba(168, 85, 247, 0.8))',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}
 
 // ─── Shape point generators ──────────────────────────────────────────────────
 function getMoonPoints(count) {
@@ -143,7 +348,6 @@ const StarsBg = () => {
 
     // ── Scene / Camera / Renderer ─────────────────────────────────────────
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2('#050510', 0.0006);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
     camera.position.z = 600;
@@ -162,13 +366,13 @@ const StarsBg = () => {
     mount.appendChild(renderer.domElement);
 
     // ── Background twinkling stars ─────────────────────────────────────────
-    const STAR_COUNT = 700;
+    const STAR_COUNT = 1200;
     const starGeo = new THREE.BufferGeometry();
     const starPos   = new Float32Array(STAR_COUNT * 3);
     const starSz    = new Float32Array(STAR_COUNT);
     const starPhase = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT * 3; i++) starPos[i] = (Math.random()-0.5) * 3000;
-    for (let i = 0; i < STAR_COUNT; i++) { starSz[i] = Math.random()*2+0.5; starPhase[i] = Math.random()*Math.PI*2; }
+    for (let i = 0; i < STAR_COUNT * 3; i++) starPos[i] = (Math.random()-0.5) * 3200;
+    for (let i = 0; i < STAR_COUNT; i++) { starSz[i] = Math.random()*2.4 + 1.2; starPhase[i] = Math.random()*Math.PI*2; }
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     starGeo.setAttribute('size',     new THREE.BufferAttribute(starSz, 1));
     starGeo.setAttribute('aPhase',   new THREE.BufferAttribute(starPhase, 1));
@@ -182,7 +386,7 @@ const StarsBg = () => {
         void main() {
           vPhase = aPhase;
           vec4 mvp = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = size * (300.0 / -mvp.z);
+          gl_PointSize = max(1.8, size * (380.0 / -mvp.z));
           gl_Position = projectionMatrix * mvp;
         }`,
       fragmentShader: `
@@ -191,7 +395,7 @@ const StarsBg = () => {
         void main() {
           float d = length(gl_PointCoord - vec2(0.5));
           if (d > 0.5) discard;
-          float a = 0.5 + 0.5 * sin(uTime * 2.0 + vPhase);
+          float a = 0.45 + 0.55 * sin(uTime * 2.0 + vPhase);
           gl_FragColor = vec4(1.0, 1.0, 1.0, a * (1.0 - d * 2.0));
         }`,
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
@@ -219,24 +423,87 @@ const StarsBg = () => {
       scene.add(s); clouds.push(s);
     }
 
-    // ── Moon glow ──────────────────────────────────────────────────────────
+    // ── Moon with Crisp Crescent Shape & Earthshine ───────────────────────
     const makeMoonTex = () => {
-      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const c = document.createElement('canvas');
+      c.width = c.height = 512;
       const ctx = c.getContext('2d');
-      const g = ctx.createRadialGradient(100,100,0,128,128,128);
-      g.addColorStop(0,    'rgba(255,248,210,1)');
-      g.addColorStop(0.4,  'rgba(240,220,150,0.9)');
-      g.addColorStop(0.75, 'rgba(200,170,90,0.5)');
-      g.addColorStop(1,    'rgba(255,255,255,0)');
-      ctx.fillStyle = g; ctx.fillRect(0,0,256,256);
+      const cx = 256, cy = 256, R = 185;
+
+      // 1. Earthshine (unlit dark side showing full sphere)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(12, 10, 26, 0.88)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(190, 170, 250, 0.35)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Subtle craters on dark sphere
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+      ctx.beginPath(); ctx.arc(cx + 60, cy - 20, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 95, cy + 45, 32, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 35, cy + 75, 20, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+
+      // 2. Crisp illuminated crescent moon body
+      ctx.save();
+      ctx.beginPath();
+      // Outer arc (left side)
+      ctx.arc(cx, cy, R, Math.PI * 0.5, Math.PI * 1.5, false);
+      // Inner arc curving back
+      ctx.arc(cx + 80, cy - 10, R * 0.92, Math.PI * 1.5, Math.PI * 0.5, true);
+      ctx.closePath();
+
+      // Crescent gradient
+      const g = ctx.createLinearGradient(cx - R, cy, cx, cy);
+      g.addColorStop(0, '#ffffff');
+      g.addColorStop(0.25, '#fffbeb');
+      g.addColorStop(0.65, '#fde047');
+      g.addColorStop(1, '#ca8a04');
+      ctx.fillStyle = g;
+      ctx.shadowColor = 'rgba(254, 240, 138, 0.85)';
+      ctx.shadowBlur = 24;
+      ctx.fill();
+
+      // Lunar craters on crescent
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(161, 98, 7, 0.4)';
+      const craters = [
+        [cx - 100, cy - 30, 15],
+        [cx - 78, cy + 58, 14],
+        [cx - 128, cy + 20, 12],
+        [cx - 60, cy - 78, 10],
+        [cx - 38, cy + 108, 9],
+      ];
+      craters.forEach(([x, y, r]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Brilliant outer rim stroke
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, Math.PI * 0.5, Math.PI * 1.5, false);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.restore();
       return new THREE.CanvasTexture(c);
     };
+
     const moonTex = makeMoonTex();
-    const moonSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending }));
-    moonSprite.position.set(520, 520, -200); moonSprite.scale.set(700,700,1);
+    // Using NormalBlending with transparent true preserves the crisp crescent outline and dark disc
+    const moonSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex, transparent: true, opacity: 0.95 }));
+    moonSprite.position.set(520, 520, -200);
+    moonSprite.scale.set(650, 650, 1);
     scene.add(moonSprite);
-    const moonGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, color: 0xfff0aa, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending }));
-    moonGlow.position.set(520, 520, -210); moonGlow.scale.set(1400,1400,1);
+
+    const moonGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, color: 0xfff0aa, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending }));
+    moonGlow.position.set(520, 520, -210);
+    moonGlow.scale.set(1000, 1000, 1);
     scene.add(moonGlow);
 
     // ── Shooting stars ─────────────────────────────────────────────────────
@@ -298,9 +565,9 @@ const StarsBg = () => {
 
     // Responsive scaling for interactive shapes
     const updateShapeScale = () => {
-      let s = 1.5; // Target is approx 1.5x bigger
+      let s = 1.0;
       if (window.innerWidth < 768) {
-        s = Math.max(1.1, (window.innerWidth / 768) * 1.5);
+        s = Math.max(0.75, (window.innerWidth / 768) * 0.95);
       }
       pMesh.scale.set(s, s, s);
     };
@@ -420,12 +687,19 @@ const StarsBg = () => {
       starMesh.rotation.y += 0.0002;
       starMesh.rotation.x += 0.0001;
 
-      // Camera parallax
-      camera.position.x += (camMouseX - camera.position.x) * 0.04;
-      camera.position.y += (-camMouseY - scrollY * 0.35 - camera.position.y) * 0.04;
+      // Camera parallax — scroll offset adjusts camera Y so particles stay
+      // aligned to the viewport regardless of how far the user has scrolled.
+      const scrollNorm = scrollY / Math.max(document.body.scrollHeight - window.innerHeight, 1);
+      const targetCamY = -camMouseY - scrollNorm * 300;
+      camera.position.x += (camMouseX   - camera.position.x) * 0.04;
+      camera.position.y += (targetCamY  - camera.position.y) * 0.04;
       camera.lookAt(scene.position);
 
-      // Unproject mouse to Z=0 plane for cursor repulsion
+      // Keep shape flat facing forward so 100% of the shape is visible and mouse repulsion is exact
+      pMesh.rotation.set(0, 0, 0);
+
+      // Unproject mouse to Z=0 plane for cursor repulsion.
+      // ndcY is already viewport-relative via clientY — correct for a fixed canvas.
       const ray = new THREE.Vector3(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position).normalize();
       const tDist = -camera.position.z / ray.z;
       mouse3D.copy(camera.position).addScaledVector(ray, tDist);
@@ -541,10 +815,66 @@ const StarsBg = () => {
 
   return (
     <div
-      ref={mountRef}
       aria-hidden="true"
-      style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}
-    />
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        zIndex: 0,
+        pointerEvents: 'none',
+      }}
+    >
+      {/* 1. Deep Space Cosmic Midnight Gradient */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `
+            radial-gradient(ellipse 75% 55% at 82% 10%, rgba(76, 29, 149, 0.65) 0%, transparent 60%),
+            radial-gradient(ellipse 65% 50% at 18% 85%, rgba(15, 23, 72, 0.75) 0%, transparent 58%),
+            radial-gradient(ellipse 50% 40% at 45% 45%, rgba(30, 27, 75, 0.45) 0%, transparent 65%),
+            radial-gradient(ellipse 100% 100% at 50% 50%, #08061a 0%, #04030d 50%, #020108 100%)
+          `,
+        }}
+      />
+
+      {/* 2. Glowing Stardust & Cosmic Nebula */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `
+            radial-gradient(ellipse 60% 40% at 25% 35%, rgba(126, 34, 206, 0.24) 0%, transparent 70%),
+            radial-gradient(ellipse 45% 35% at 75% 65%, rgba(37, 99, 235, 0.20) 0%, transparent 70%),
+            radial-gradient(ellipse 35% 25% at 60% 25%, rgba(236, 72, 153, 0.14) 0%, transparent 65%)
+          `,
+        }}
+      />
+
+      {/* 3. Celestial Starfield (160 distant stars, 85 mid stars, 24 hero stars, 10 cross stars) */}
+      <DistantStars />
+      <MidStars />
+      <HeroStars />
+
+      {/* 4. Shooting Stars / Meteors across the night sky */}
+      <ShootingStar top={10} left={12} delay={1.2} duration={7} />
+      <ShootingStar top={26} left={48} delay={4.0} duration={8.5} />
+      <ShootingStar top={8} left={68} delay={7.2} duration={8} />
+
+      {/* 5. 3D WebGL Canvas Layer (interactive morphing shapes & space) */}
+      <div
+        ref={mountRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      />
+    </div>
   );
 };
 

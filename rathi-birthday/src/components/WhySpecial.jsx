@@ -2,38 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const stars = [
-  { reason: 'You listen to me', detail: 'Not just hear — you actually listen. You remember things I mentioned once, months ago. That means more than you know.' },
-  { reason: 'You understand my silence', detail: 'You never need me to explain every feeling. Sometimes you just know. And that quiet understanding is everything.' },
-  { reason: 'You annoy me (on purpose)', detail: 'You do this thing where you deliberately press my buttons and then laugh about it. I hate that I find it adorable.' },
-  { reason: 'You stayed', detail: 'Through the difficult conversations, the long silences, the messy moments. You stayed. That\'s not nothing. That\'s everything.' },
-  { reason: 'You became home', detail: 'Somewhere along the way, home stopped being a place and started being conversations with you.' },
-  { reason: 'You\'re unapologetically you', detail: 'You don\'t pretend. You don\'t perform. You just exist, and somehow that existence makes everyone around you feel more alive.' },
-  { reason: 'Your laugh', detail: 'I genuinely cannot describe it without smiling. It\'s the kind of laugh that makes a whole room feel lighter.' },
-  { reason: 'You care deeply', detail: 'Even when it hurts you. Even when no one sees. You care so deeply it\'s almost reckless. It\'s beautiful.' },
+  { reason: 'You listen to me', detail: 'Naa sona china china vishayam kuda nee seiva😙.' },
+  { reason: 'You understand my silence', detail: 'Naa silent aa erruntha , seri nu vidama en nu ketu, naa solama nee kochitu errupa😆.' },
+  { reason: 'You annoy me (on purpose)', detail: 'Naa enalaa pudikathu nu soldren noo athu mattum tha thedi thedi seiva 😶, ama la cheloo.' },
+  { reason: 'You stayed', detail: 'Yethu epdi ponalum ennoda happines and sadness renduthukum starting point nee tha😍.' },
+  { reason: 'You became home', detail: 'enathaa kurumbu senjalum nee epdiyo close aagita😜.' },
+  { reason: 'You\'re unapologetically you', detail: 'yarukavum yethukum change panathu illa un characters. but unaku kovam romba varuthu athu kami panu paa pleech🥺.' },
 ];
 
-function OrbitingStar({ star, index, total, isOpen, onClick, time }) {
+function OrbitingStar({ star, index, total, isOpen, onClick, time, radius }) {
   const baseAngle = (index / total) * 360;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
-  const baseRadius = isMobile ? 120 : 190;
-
-  // Each star orbits at its own speed and has a bobbing radius
-  const speed = 0.15 + index * 0.03;
+  // All stars orbit at the exact same constant speed (12 deg/sec)
+  // This ensures the angular distance between adjacent stars is ALWAYS exactly 60 degrees
+  const speed = 12;
   const currentAngle = baseAngle + time * speed;
-  const radiusWobble = Math.sin(time * 0.5 + index * 0.8) * 20;
-  const radius = baseRadius + radiusWobble;
 
   const x = Math.cos((currentAngle - 90) * Math.PI / 180) * radius;
   const y = Math.sin((currentAngle - 90) * Math.PI / 180) * radius;
 
-  // Slight scale pulsing
-  const pulse = 1 + Math.sin(time * 0.8 + index * 1.2) * 0.15;
-
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.15, type: 'spring' }}
+    // Outer plain div: pure absolute positioning, no Framer Motion transform interference
+    <div
       style={{
         position: 'absolute',
         left: `calc(50% + ${x}px)`,
@@ -42,54 +31,70 @@ function OrbitingStar({ star, index, total, isOpen, onClick, time }) {
         zIndex: isOpen ? 10 : 2,
       }}
     >
-      <motion.button
-        whileHover={{ scale: 1.4 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => onClick(index)}
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: isOpen
-            ? 'radial-gradient(circle, #fbbf24, #f97316)'
-            : 'radial-gradient(circle, #fbbf2477, #6b21a833)',
-          border: `2px solid ${isOpen ? '#fbbf24' : '#fbbf2444'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          fontSize: '1.4rem',
-          transition: 'background 0.3s, border 0.3s',
-          boxShadow: isOpen
-            ? '0 0 30px #fbbf24, 0 0 60px #fbbf2444'
-            : `0 0 ${6 + pulse * 6}px #fbbf2466`,
-          transform: `scale(${pulse})`,
-        }}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: index * 0.15, type: 'spring' }}
       >
-        ⭐
-      </motion.button>
-    </motion.div>
+        <motion.button
+          whileHover={{ scale: 1.35 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => onClick(index)}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            background: isOpen
+              ? 'radial-gradient(circle, #fbbf24, #f97316)'
+              : 'radial-gradient(circle, rgba(251,191,36,0.35), rgba(107,33,168,0.2))',
+            border: `2px solid ${isOpen ? '#fbbf24' : 'rgba(251,191,36,0.5)'}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '1.4rem',
+            transition: 'background 0.3s, border 0.3s, box-shadow 0.3s',
+            boxShadow: isOpen
+              ? '0 0 30px #fbbf24, 0 0 60px rgba(251,191,36,0.3)'
+              : '0 0 14px rgba(251,191,36,0.45)',
+          }}
+        >
+          ⭐
+        </motion.button>
+      </motion.div>
+    </div>
   );
 }
 
 export default function WhySpecial() {
   const [openStar, setOpenStar] = useState(null);
   const [time, setTime] = useState(0);
+  const [radius, setRadius] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 600 ? 120 : 190));
   const rafRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setRadius(window.innerWidth < 600 ? 120 : 190);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     let lastTime = performance.now();
     const animate = (now) => {
       const delta = (now - lastTime) / 1000;
       lastTime = now;
-      setTime(prev => prev + delta);
+      if (openStar === null) {
+        setTime(prev => prev + delta);
+      }
       rafRef.current = requestAnimationFrame(animate);
     };
     rafRef.current = requestAnimationFrame(animate);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [openStar]);
 
   const toggle = (i) => setOpenStar(prev => prev === i ? null : i);
 
@@ -98,7 +103,7 @@ export default function WhySpecial() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'radial-gradient(ellipse at 50% 50%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 80%)',
+        background: 'transparent',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -128,10 +133,8 @@ export default function WhySpecial() {
         height: 'clamp(300px, 90vw, 500px)',
         margin: '0 auto 40px',
       }}>
-        {/* Center moon */}
-        <motion.div
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+        {/* Center moon (fixed in center) */}
+        <div
           style={{
             position: 'absolute',
             left: '50%',
@@ -139,31 +142,46 @@ export default function WhySpecial() {
             transform: 'translate(-50%, -50%)',
             fontSize: 'clamp(3rem, 10vw, 5rem)',
             zIndex: 3,
-            filter: 'drop-shadow(0 0 20px #e2d5f888)',
+            filter: 'drop-shadow(0 0 24px rgba(226, 213, 248, 0.6))',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           🌙
-        </motion.div>
+        </div>
 
-        {/* Orbit trail rings */}
-        {[0.7, 0.85, 1].map((scale, i) => (
-          <motion.div
-            key={i}
-            animate={{ opacity: [0.05, 0.15, 0.05] }}
-            transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: `${scale * 100}%`,
-              height: `${scale * 100}%`,
-              borderRadius: '50%',
-              border: '1px solid rgba(251,191,36,0.15)',
-              pointerEvents: 'none',
-            }}
-          />
-        ))}
+        {/* Orbit trail ring matching the exact circular orbit */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: radius * 2,
+            height: radius * 2,
+            borderRadius: '50%',
+            border: '1.5px dashed rgba(251,191,36,0.22)',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Faint outer decorative ring */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: radius * 2 + 28,
+            height: radius * 2 + 28,
+            borderRadius: '50%',
+            border: '1px solid rgba(251,191,36,0.08)',
+            pointerEvents: 'none',
+          }}
+        />
 
         {/* Orbiting Stars */}
         {stars.map((star, i) => (
@@ -175,6 +193,7 @@ export default function WhySpecial() {
             isOpen={openStar === i}
             onClick={toggle}
             time={time}
+            radius={radius}
           />
         ))}
       </div>

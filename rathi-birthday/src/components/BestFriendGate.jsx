@@ -29,23 +29,23 @@ const QUESTIONS = [
   {
     label: 'Step I',
     title: 'Identity Verification',
-    subtitle: 'Who is the most endearingly annoying person in this friendship?',
+    subtitle: 'Namba rendu peru la yaru romba sanda poduva?',
     options: [
-      { text: 'Definitely me',         correct: true  },
-      { text: 'Probably you',          correct: false },
-      { text: "It's mutual, honestly", correct: false },
+      { text: 'naa',         correct: true  },
+      { text: 'nee',          correct: false },
+      { text: "Rendu perum", correct: false },
     ],
-    correctMsg: '✓ Verified. Welcome back.',
-    wrongMsg:   'Incorrect. Reconsider your answer.',
+    correctMsg: '✓ Verified. paraa therinji erruku.',
+    wrongMsg:   'thappu bitch.',
     isLast: false,
   },
   {
     label: 'Step II',
     title: 'Friendship Authentication',
-    subtitle: 'Do you genuinely consider yourself my closest friend?',
+    subtitle: 'unoda bestie yaru?',
     options: [
-      { text: 'Without question',        correct: true  },
-      { text: 'I was coerced into this', correct: true  },
+      { text: 'naa',        correct: true  },
+      { text: 'schl frnds', correct: true  },
       { text: "Where's the exit?",       correct: false },
     ],
     correctMsg: '✓ Authenticated. Proceed.',
@@ -55,28 +55,28 @@ const QUESTIONS = [
   {
     label: 'Step III',
     title: 'Affection Calibration',
-    subtitle: 'How deeply do you value this friendship?',
+    subtitle: 'unaaku evalo pudikum, enaiya?',
     options: [
-      { text: 'Moderately',                             correct: false },
-      { text: 'Considerably',                           correct: false },
-      { text: 'Completely',                             correct: false },
-      { text: "Immeasurably, and it's terrifying",      correct: true  },
+      { text: 'naa yaru nu ketkatha',                             correct: false },
+      { text: 'ennaiya konjam theriyum',                           correct: false },
+      { text: 'etho konjama',                             correct: false },
+      { text: "rombaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",      correct: true  },
     ],
-    correctMsg: '✓ Calibration complete. You passed.',
-    wrongMsg:   'Recalibrating…',
+    correctMsg: '✓ enaku theriyumey😘.',
+    wrongMsg:   'pudikatha😭',
     isLast: false,
   },
   {
     label: 'Final Step',
     title: 'Final Clearance',
-    subtitle: 'Are you prepared for what awaits?',
+    subtitle: 'Ena irruku nu pakanuma venaa va?',
     options: [
       { text: 'Absolutely',            correct: true  },
-      { text: "I'm nervous but ready", correct: true  },
-      { text: 'Let me reconsider',     correct: false }, // triggers please.mp4
+      { text: "try pani pakuren", correct: true  },
+      { text: 'no no no',     correct: false }, // triggers please.mp4
     ],
     correctMsg: '✓ Access granted.',
-    wrongMsg:   'Reconsideration denied. Proceed.',
+    wrongMsg:   'podiiiiiiiii😡🤬.',
     isLast: true,
   },
 ];
@@ -244,17 +244,30 @@ function Dots({ current, total }) {
   );
 }
 
-/* ─── Correct-answer video (gemini clip) ─────────────────────────── */
-function VideoReward({ onDone }) {
+/* ─── Correct-answer love 3 video (Questions 1 & 2) ──────────────── */
+function Love3Video({ onDone }) {
   const ref = useRef(null);
+  const calledRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+    if (ref.current) {
+      try { ref.current.pause(); } catch {}
+    }
+    onDone();
+  }, [onDone]);
+
   useEffect(() => {
+    let t;
     if (ref.current) {
       ref.current.currentTime = 0;
-      ref.current.play().catch(() => {});
+      ref.current.play().catch(() => {
+        t = setTimeout(finish, 6000);
+      });
     }
-    const t = setTimeout(() => { if (ref.current) ref.current.pause(); onDone(); }, 5000);
-    return () => clearTimeout(t);
-  }, [onDone]);
+    return () => { if (t) clearTimeout(t); };
+  }, [finish]);
 
   return (
     <motion.div
@@ -263,19 +276,96 @@ function VideoReward({ onDone }) {
       exit={{   opacity: 0, scale: 0.7 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       style={{
+        position: 'relative',
         width: '100%', maxWidth: 290, borderRadius: 18, overflow: 'hidden',
-        border: '2px solid rgba(251,191,36,0.5)',
-        boxShadow: '0 0 40px rgba(251,191,36,0.2)',
+        border: '2px solid rgba(251,191,36,0.6)',
+        boxShadow: '0 0 50px rgba(251,191,36,0.3)',
         marginBottom: 16,
       }}
     >
-      <video ref={ref} src="/video/gemini_generated_video_43ec5079.mp4"
-        muted playsInline style={{ width: '100%', display: 'block' }} />
-      <motion.div
-        initial={{ scaleX: 1 }} animate={{ scaleX: 0 }}
-        transition={{ duration: 5, ease: 'linear' }}
-        style={{ height: 3, background: 'linear-gradient(90deg,#fbbf24,#f472b6,#818cf8)', transformOrigin: 'left' }}
+      <video
+        ref={ref}
+        src="/video/love_3.mp4"
+        playsInline
+        autoPlay
+        style={{ width: '100%', display: 'block' }}
+        onEnded={finish}
       />
+      <button 
+        onClick={finish}
+        style={{
+          position: 'absolute', top: 8, right: 8,
+          background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+          color: 'white', width: 28, height: 28, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '14px', zIndex: 10, padding: 0
+        }}
+      >
+        ✕
+      </button>
+    </motion.div>
+  );
+}
+
+/* ─── Correct-answer love 1 video (Question 3) ────────────────────── */
+function Love1Video({ onDone }) {
+  const ref = useRef(null);
+  const calledRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+    if (ref.current) {
+      try { ref.current.pause(); } catch {}
+    }
+    onDone();
+  }, [onDone]);
+
+  useEffect(() => {
+    let t;
+    if (ref.current) {
+      ref.current.currentTime = 0;
+      ref.current.play().catch(() => {
+        t = setTimeout(finish, 6000);
+      });
+    }
+    return () => { if (t) clearTimeout(t); };
+  }, [finish]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{   opacity: 0, scale: 0.7 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+      style={{
+        position: 'relative',
+        width: '100%', maxWidth: 290, borderRadius: 18, overflow: 'hidden',
+        border: '2px solid rgba(244,114,182,0.8)',
+        boxShadow: '0 0 50px rgba(244,114,182,0.4)',
+        marginBottom: 16,
+      }}
+    >
+      <video
+        ref={ref}
+        src="/video/love_1.mp4"
+        playsInline
+        autoPlay
+        style={{ width: '100%', display: 'block' }}
+        onEnded={finish}
+      />
+      <button 
+        onClick={finish}
+        style={{
+          position: 'absolute', top: 8, right: 8,
+          background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
+          color: 'white', width: 28, height: 28, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '14px', zIndex: 10, padding: 0
+        }}
+      >
+        ✕
+      </button>
     </motion.div>
   );
 }
@@ -283,16 +373,27 @@ function VideoReward({ onDone }) {
 /* ─── Final correct-answer love video ────────────────────────────── */
 function LoveVideo({ onDone }) {
   const ref = useRef(null);
+  const calledRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+    if (ref.current) {
+      try { ref.current.pause(); } catch {}
+    }
+    onDone();
+  }, [onDone]);
+
   useEffect(() => {
     let t;
     if (ref.current) {
       ref.current.currentTime = 0;
       ref.current.play().catch(() => {
-        t = setTimeout(() => { if (ref.current) ref.current.pause(); onDone(); }, 8000);
+        t = setTimeout(finish, 8000);
       });
     }
     return () => { if (t) clearTimeout(t); };
-  }, [onDone]);
+  }, [finish]);
 
   return (
     <motion.div
@@ -308,10 +409,16 @@ function LoveVideo({ onDone }) {
         marginBottom: 16,
       }}
     >
-      <video ref={ref} src="/video/love.mp4"
-        playsInline style={{ width: '100%', display: 'block' }} onEnded={onDone} />
+      <video
+        ref={ref}
+        src="/video/love.mp4"
+        playsInline
+        autoPlay
+        style={{ width: '100%', display: 'block' }}
+        onEnded={finish}
+      />
       <button 
-        onClick={onDone}
+        onClick={finish}
         style={{
           position: 'absolute', top: 8, right: 8,
           background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
@@ -401,17 +508,47 @@ function AngryBird2Video({ onDone }) {
 /* ─── Third wrong-answer angry bird 3 video (angry_3.mp4) ────────── */
 function AngryBird3Video({ onDone }) {
   const ref = useRef(null);
+  const calledRef = useRef(false);
+  const timerRef = useRef(null);
+  const [started, setStarted] = useState(false);
+
+  const finish = useCallback(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (ref.current) {
+      try { ref.current.pause(); } catch {}
+    }
+    onDone();
+  }, [onDone]);
+
   useEffect(() => {
-    let t;
     if (ref.current) {
       ref.current.currentTime = 0;
       ref.current.play().catch(() => {
-        // Fallback safety timeout if autoplay with sound fails
-        t = setTimeout(() => { if (ref.current) ref.current.pause(); onDone(); }, 5000);
+        // Fallback if browser blocks autoplay with audio
+        finish();
       });
     }
-    return () => { if (t) clearTimeout(t); };
-  }, [onDone]);
+
+    timerRef.current = setTimeout(finish, 6500);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [finish]);
+
+  const handlePlaying = () => {
+    setStarted(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(finish, 6000);
+  };
+
+  const handleTimeUpdate = () => {
+    if (ref.current && ref.current.currentTime >= 6) {
+      finish();
+    }
+  };
 
   return (
     <motion.div
@@ -421,16 +558,35 @@ function AngryBird3Video({ onDone }) {
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       style={{
         position: 'relative',
-        width: '100%', maxWidth: 240, borderRadius: 18, overflow: 'hidden',
+        width: '100%', maxWidth: 290, borderRadius: 18, overflow: 'hidden',
         border: '2px solid rgba(220,38,38,0.9)',
         boxShadow: '0 0 60px rgba(220,38,38,0.6)',
         marginBottom: 16,
       }}
     >
-      <video ref={ref} src="/video/angry_3.mp4"
-        playsInline style={{ width: '100%', display: 'block' }} onEnded={onDone} />
+      <video
+        ref={ref}
+        src="/video/angry_3.mp4"
+        playsInline
+        autoPlay
+        onPlaying={handlePlaying}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={finish}
+        style={{ width: '100%', display: 'block' }}
+      />
+      <motion.div
+        key={started ? 'playing' : 'waiting'}
+        initial={{ scaleX: 1 }}
+        animate={{ scaleX: started ? 0 : 1 }}
+        transition={{ duration: 6, ease: 'linear' }}
+        style={{
+          height: 3,
+          background: 'linear-gradient(90deg,#dc2626,#ef4444,#fbbf24)',
+          transformOrigin: 'left',
+        }}
+      />
       <button 
-        onClick={onDone}
+        onClick={finish}
         style={{
           position: 'absolute', top: 8, right: 8,
           background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%',
@@ -608,10 +764,16 @@ export default function BestFriendGate({ onPass }) {
       setToast({ msg: QUESTIONS[step].correctMsg, on: true });
       setTimeout(() => setToast(v => ({ ...v, on: false })), 1000);
       setWrongCount(0);
-      if (step === QUESTIONS.length - 1) {
-        setPhase('lovevideo');
+
+      if (step === 0 || step === 1) {
+        // First 2 questions (Step 1 & Step 2) -> love_3 video
+        setPhase('love3video');
+      } else if (step === 2) {
+        // 3rd question (Step 3) -> love_1 video
+        setPhase('love1video');
       } else {
-        setPhase('video');
+        // Last question (Step 4) -> love video
+        setPhase('lovevideo');
       }
     } else {
       // Last question "Let me reconsider" → please video
@@ -669,7 +831,7 @@ export default function BestFriendGate({ onPass }) {
 
   /* ── Derived ────────────────────────────────────────────────── */
   const q            = QUESTIONS[step];
-  const showQuestion = ['question', 'video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo', 'correct'].includes(phase);
+  const showQuestion = ['question', 'video', 'lovevideo', 'love1video', 'love3video', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo', 'correct'].includes(phase);
   const imgSrc       = (i) => processedImgs[i] || RAW_IMAGES[i];
 
   /* ─────────────────────────────────────────────────────────── */
@@ -861,12 +1023,17 @@ export default function BestFriendGate({ onPass }) {
             }}>
               <Dots current={step} total={QUESTIONS.length} />
 
-              {/* ── Correct-answer video ── */}
+              {/* ── Love 3 video (Questions 1 & 2) ── */}
               <AnimatePresence>
-                {phase === 'video' && <VideoReward onDone={handleVideoDone} />}
+                {phase === 'love3video' && <Love3Video onDone={handleVideoDone} />}
               </AnimatePresence>
 
-              {/* ── Final correct-answer love video ── */}
+              {/* ── Love 1 video (Question 3) ── */}
+              <AnimatePresence>
+                {phase === 'love1video' && <Love1Video onDone={handleVideoDone} />}
+              </AnimatePresence>
+
+              {/* ── Final correct-answer love video (Last Question) ── */}
               <AnimatePresence>
                 {phase === 'lovevideo' && <LoveVideo onDone={handleVideoDone} />}
               </AnimatePresence>
@@ -892,7 +1059,7 @@ export default function BestFriendGate({ onPass }) {
               </AnimatePresence>
 
               {/* Caught butterfly images (not during videos) — two straight, no rotation */}
-              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'love1video', 'love3video', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <div style={{ display: 'flex', gap: 18, marginBottom: 18, alignItems: 'center' }}>
                   {[caughtIdx, (caughtIdx + 1) % RAW_IMAGES.length].map((idx, i) => (
                     <motion.div
@@ -916,7 +1083,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Video caption labels */}
-              {phase === 'video' && (
+              {phase === 'love3video' && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   style={{
@@ -924,19 +1091,30 @@ export default function BestFriendGate({ onPass }) {
                     fontFamily: "'Dancing Script', cursive", fontSize: '1.12rem',
                   }}
                 >
-                  🎉 Correct! Enjoy this little moment…
+                  ✨ Correct! A little love moment…
+                </motion.p>
+              )}
+              {phase === 'love1video' && (
+                <motion.p
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  style={{
+                    textAlign: 'center', color: '#f472b6',
+                    fontFamily: "'Dancing Script', cursive", fontSize: '1.12rem',
+                  }}
+                >
+                  💖 You know me so well…
                 </motion.p>
               )}
               {phase === 'lovevideo' && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   style={{
-                    textAlign: 'center', color: '#f472b6',
+                    textAlign: 'center', color: '#ec4899',
                     fontFamily: "'Dancing Script', cursive", fontSize: '1.12rem',
                     marginTop: 8,
                   }}
                 >
-                  💖 You made it...
+                  💕 You made it to the final surprise…
                 </motion.p>
               )}
               {phase === 'angryvideo' && (
@@ -989,7 +1167,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Step label */}
-              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'love1video', 'love3video', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <p style={{
                   fontFamily: "'Inter', sans-serif",
                   fontSize: '0.68rem',
@@ -1002,7 +1180,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Title */}
-              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'love1video', 'love3video', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <h2 style={{
                   fontFamily: "'Playfair Display', serif",
                   color: '#fbbf24',
@@ -1016,7 +1194,7 @@ export default function BestFriendGate({ onPass }) {
               )}
 
               {/* Subtitle */}
-              {!['video', 'lovevideo', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
+              {!['video', 'lovevideo', 'love1video', 'love3video', 'angryvideo', 'angryvideo2', 'angryvideo3', 'pleasevideo'].includes(phase) && (
                 <p style={{
                   fontFamily: "'Inter', sans-serif",
                   color: 'rgba(240,232,255,0.72)',

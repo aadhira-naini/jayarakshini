@@ -2,7 +2,20 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 const lines = [
-  "I don't know what the future holds for us.",
+  "You\'re like a little baby girl to me,",
+  "and even if you don\'t know it, I\'m always watching you ",
+  "out of the corner of one eye",
+  "because i need to know that you\'re okay.",
+  "I know that you\'re total boss and",
+  "you don\'t need anyone to protect you",
+  "Except deep down, Everyone needs someone who will ",
+  "support us and listen to us.",
+  "Even bosses",
+  "Madam, you are the best person i know and you deserve to be happy always. ",
+  "but if u not , if something happened to u and you want to tell me I\'m Here",
+  "if you dont want to tell me, it doesnt matter",
+  "i\'m going to you love you as same.",
+  "don't know what the future holds for us.",
   "We may grow, change, get busy,",
   "and sometimes even fight…",
   "",
@@ -10,8 +23,6 @@ const lines = [
   "we still find our way back to each other.",
   "",
   "Because you are not just a chapter.",
-  "You are one of the reasons",
-  "the story is worth telling.",
 ];
 
 function LetterLine({ text, index }) {
@@ -25,10 +36,10 @@ function LetterLine({ text, index }) {
       style={{
         fontFamily: "'Playfair Display', serif",
         fontSize: 'clamp(1rem, 3vw, 1.4rem)',
-        color: index < 3 ? '#c4b5fd' : index < 6 ? '#e2d5f8' : '#ffffff',
+        color: index < 6 ? '#c4b5fd' : index < 14 ? '#d9caf4' : '#ffffff',
         lineHeight: 1.9,
-        fontStyle: index > 5 ? 'normal' : 'italic',
-        fontWeight: index > 7 ? 600 : 400,
+        fontStyle: index > 12 ? 'normal' : 'italic',
+        fontWeight: index > 14 ? 600 : 400,
       }}
     >
       {text}
@@ -42,7 +53,7 @@ export default function BirthdayLetter() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, rgba(10,10,26,0.3) 0%, rgba(13,0,32,0.4) 50%, rgba(10,10,26,0.3) 100%)',
+        background: 'transparent',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -121,7 +132,7 @@ export default function BirthdayLetter() {
             backgroundClip: 'text',
             fontWeight: 700,
           }}>
-            Happy Birthday, My Moon 🌙💙
+            Happy Birthday, Pattu ma 
           </p>
           <p style={{
             color: '#7c6fa0',

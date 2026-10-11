@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 const finalPhotos = [
-  { src: '/photos/photo1.jpeg', emoji: '🌙' },
-  { src: '/photos/photo2.jpg', emoji: '💙' },
-  { src: '/photos/photo3.jpg', emoji: '✨' },
-  { src: '/photos/photo4.jpg', emoji: '🎉' },
-  { src: '/photos/photo5.jpg', emoji: '🥹' },
+  { src: '/photos/photos1.jpeg',   },
+  { src: '/photos/photos2.jpeg',  },
+  { src: '/photos/photos3.jpeg',  },
+  { src: '/photos/photos4.jpeg', },
+  { src: '/photos/photos5.jpeg', },
 ];
 
 function Fireworks() {
@@ -235,7 +235,7 @@ export default function FinalSurprise() {
                 backgroundClip: 'text',
                 fontWeight: 700,
               }}>
-                Happy Birthday, My Moon 🌙💙
+                Happy Birthday, di Bitch 🌙💙
               </p>
             </motion.div>
           </motion.div>

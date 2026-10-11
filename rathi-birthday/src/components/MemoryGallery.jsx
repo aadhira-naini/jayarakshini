@@ -4,45 +4,45 @@ import { motion, AnimatePresence } from 'framer-motion';
 const photos = [
   {
     src: '/photos/photo1.jpeg',
-    caption: 'This picture looks normal…',
-    story: 'But only we know what happened 5 minutes before this 😂 Every photo hides a whole story.',
-    date: 'A day I won\'t forget',
-    placeholder: '📸',
+    caption: 'from stranger -> friend ',
+    story: ' ellamey start aana place, just the place filled with happiness ',
+    date: 'Golden day\'s ',
+    
   },
   {
     src: '/photos/photo2.jpeg',
-    caption: 'Caught in the act ✨',
-    story: 'This was one of those moments where we both looked at each other and just knew. No words needed.',
-    date: 'Random afternoon',
-    placeholder: '🌙',
+    caption: 'Gratefull still now ✨',
+    story: 'epo varikum na celebrate pana birthdays la ethutha top, thanksu avalo risk eduthu panathuku ',
+    date: 'My birthday with you',
+    
   },
   {
     src: '/photos/photo3.jpeg',
     caption: 'Look at us 🥹',
-    story: 'I didn\'t know at the time that this would become one of my favourite memories. But here we are.',
+    story: 'i dont know you are remember or not, but this day make the bond even closer ',
     date: 'That one day',
-    placeholder: '💙',
+    
   },
   {
     src: '/photos/photo4.jpeg',
     caption: 'The chaos 😭',
-    story: 'Pure, unfiltered chaos. I wouldn\'t change a single second of it.',
-    date: 'When we lost our minds',
-    placeholder: '⚡',
+    story: 'from start to end, neraya bayam, over excitement, happiness, maraka mudiyathu ',
+    date: 'First nightout',
+    
   },
   {
     src: '/photos/photo5.jpeg',
     caption: 'My favourite kind of moment',
-    story: 'The quiet ones. The ones no one else sees. Those are mine to keep.',
-    date: 'A quiet day',
-    placeholder: '🌸',
+    story: 'early um illa , late um illa madam kita na pakanum sonathu nala perfect timing la kutitu poitu katuninga ',
+    date: 'Sunrise',
+    
   },
   {
     src: '/photos/photo6.jpeg',
-    caption: 'Evidence 😂',
-    story: 'I have no explanation for this. I don\'t think either of us do. And that\'s exactly what makes it perfect.',
-    date: 'Chaotic era',
-    placeholder: '🎭',
+    caption: 'favrt person favrt placce 😂',
+    story: 'naa un ooruku vantha nee epdi erruntha theriyala , but nee vanthathu enaku sema happy.',
+    date: 'village festival',
+    
   },
 ];
 
@@ -78,7 +78,14 @@ export default function MemoryGallery() {
     setIsAutoRotating(true);
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const radius = isMobile ? 140 : 260;
   const cardW = isMobile ? 120 : 180;
 
@@ -87,7 +94,7 @@ export default function MemoryGallery() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'linear-gradient(180deg, rgba(13,13,43,0.3), rgba(17,17,51,0.4), rgba(10,10,26,0.3))',
+        background: 'transparent',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
@@ -149,60 +156,70 @@ export default function MemoryGallery() {
             const tilt = Math.sin(rad) * 8;
 
             return (
-              <motion.div
+              // Outer div: handles only absolute position (left/top + center-translate)
+              // This keeps x/y positioning separate from Framer Motion's transform.
+              <div
                 key={i}
-                onClick={() => handleCardClick(i)}
-                whileHover={{ scale: scale * 1.1 }}
                 style={{
                   position: 'absolute',
                   left: `calc(50% + ${x}px)`,
                   top: `calc(50% + ${y}px)`,
-                  transform: `translate(-50%, -50%) scale(${scale}) rotate(${tilt}deg)`,
-                  cursor: 'pointer',
-                  background: '#fff',
-                  padding: '8px 8px 28px',
-                  borderRadius: 4,
-                  boxShadow: `0 ${4 + zIdx}px ${16 + zIdx * 2}px rgba(0,0,0,${0.3 + normalizedY * 0.3})`,
-                  width: cardW,
+                  transform: 'translate(-50%, -50%)',
                   zIndex: zIdx,
-                  transition: 'transform 0.1s linear',
                 }}
               >
-                <div style={{
-                  width: '100%',
-                  aspectRatio: '1/1',
-                  background: 'linear-gradient(135deg, rgba(26,10,46,0.8), rgba(13,13,43,0.8))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2.5rem',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}>
-                  <img
-                    src={photo.src}
-                    alt={photo.caption}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={e => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                  <span style={{ position: 'absolute', fontSize: '2.5rem', pointerEvents: 'none' }}>
-                    {photo.placeholder}
-                  </span>
-                </div>
-                <p style={{
-                  textAlign: 'center',
-                  marginTop: 6,
-                  fontFamily: "'Dancing Script', cursive",
-                  fontSize: '0.75rem',
-                  color: '#333',
-                  lineHeight: 1.3,
-                }}>
-                  {photo.caption}
-                </p>
-              </motion.div>
+                {/* Inner motion.div: handles scale, rotate, hover — no left/top */}
+                <motion.div
+                  onClick={() => handleCardClick(i)}
+                  animate={{ scale, rotate: tilt }}
+                  whileHover={{ scale: scale * 1.12 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 22 }}
+                  style={{
+                    cursor: 'pointer',
+                    background: '#fff',
+                    padding: '8px 8px 28px',
+                    borderRadius: 4,
+                    boxShadow: `0 ${4 + zIdx}px ${16 + zIdx * 2}px rgba(0,0,0,${0.3 + normalizedY * 0.3})`,
+                    width: cardW,
+                    transformOrigin: 'center center',
+                  }}
+                >
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: '1/1',
+                    background: 'linear-gradient(135deg, rgba(26,10,46,0.8), rgba(13,13,43,0.8))',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2.5rem',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}>
+                    <img
+                      src={photo.src}
+                      alt={photo.caption}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: photo.objectPosition || 'center' }}
+                      onError={e => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <span style={{ position: 'absolute', fontSize: '2.5rem', pointerEvents: 'none' }}>
+                      {photo.placeholder}
+                    </span>
+                  </div>
+                  <p style={{
+                    textAlign: 'center',
+                    marginTop: 6,
+                    fontFamily: "'Dancing Script', cursive",
+                    fontSize: '0.75rem',
+                    color: '#333',
+                    lineHeight: 1.3,
+                  }}>
+                    {photo.caption}
+                  </p>
+                </motion.div>
+              </div>
             );
           })}
         </div>
@@ -259,7 +276,7 @@ export default function MemoryGallery() {
                 <img
                   src={photos[selected].src}
                   alt={photos[selected].caption}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: photos[selected].objectPosition || 'center' }}
                   onError={e => { e.target.style.display = 'none'; }}
                 />
                 <span style={{ position: 'absolute', fontSize: '5rem' }}>
@@ -315,7 +332,7 @@ export default function MemoryGallery() {
         opacity: 0.6,
         zIndex: 2,
       }}>
-        📁 Add your photos in <code>/public/photos/</code> — name them photo1.jpeg through photo6.jpeg
+       
       </p>
     </section>
   );

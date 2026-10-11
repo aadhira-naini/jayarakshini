@@ -5,25 +5,25 @@ const cards = [
   {
     trigger: '💙 Click when you\'re sad',
     emoji: '🌙',
-    message: "Hey. I know things feel heavy right now. But you've survived every single hard day life has thrown at you so far. Every. Single. One. And this one? You'll survive this too. I'm not going anywhere. Call me, text me, scream into the void — I'll be at the other end. You don't have to carry this alone.",
+    message: " No matter what, na unkuda pesurano illayo but always, at any time feeling sad just a call or single msg pothum naa evalo thurama errunthalum varuven.",
     color: '#3b82f6',
   },
   {
     trigger: '🥺 Click when you miss me',
     emoji: '💌',
-    message: "Missing people is just love with nowhere to go. But here's the truth — I miss you too. Probably more than I'll ever say out loud. Distance is just a number. The connection? That's not going anywhere. Remember that one time we talked until the sky turned light? That's still us. Always will be.",
+    message: "Ethu varikum nee enaiya miss pani errukiya, enaku theriyala paa natha unkudavey errukeney. but konjam time erruntha miss panu enaku tharira mathiri panuuu seriya.",
     color: '#a855f7',
   },
   {
     trigger: '🌑 Click when you feel alone',
     emoji: '⭐',
-    message: "You feel alone, but you're not. I know the feeling — that silence that gets a little too loud. But Rathi, you have more people in your corner than you realize. And I am one of them. Always. Even when I'm quiet. Even when we're apart. You've never really been alone. Not for a single day since we met.",
+    message: "four street tha distrance, mutu elunthu vanthu pathutu poo. thola pana naa errukeny aprm ena ",
     color: '#6b21a8',
   },
   {
-    trigger: '✨ Click when you forget how amazing you are',
+    trigger: '✨ Click when you fight with me',
     emoji: '🔥',
-    message: "Let me remind you then. You are someone who listens — actually listens. Someone who shows up, even when it's hard. Someone whose laugh can make the worst day lighter. Someone who cares so deeply it sometimes breaks you. That's not a weakness, Rathi. That's your superpower. You are extraordinary. And the world is genuinely better with you in it.",
+    message: "First nee yethuku kovama erruka nu solu, mukavashi neram yethuvum soldrathu illa nextu enaku epdi bitch theriyum. ",
     color: '#ec4899',
   },
 ];
@@ -36,7 +36,7 @@ export default function NeverToldYou() {
       style={{
         minHeight: '100vh',
         padding: '80px 20px',
-        background: 'radial-gradient(ellipse at 30% 70%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 80%)',
+        background: 'transparent',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

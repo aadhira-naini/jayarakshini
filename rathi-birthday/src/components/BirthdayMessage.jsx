@@ -22,7 +22,7 @@ export default function BirthdayMessage() {
     <section
       className="section-container"
       style={{
-        background: 'radial-gradient(ellipse at 50% 30%, rgba(26,10,46,0.4) 0%, rgba(10,10,26,0.3) 80%)',
+        background: 'transparent',
         textAlign: 'center',
         gap: 32,
         padding: '80px 20px',

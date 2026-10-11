@@ -8,7 +8,6 @@ import BirthdayMessage from './components/BirthdayMessage';
 import Timeline from './components/Timeline';
 import MemoryGallery from './components/MemoryGallery';
 import NeverToldYou from './components/NeverToldYou';
-import FunnySide from './components/FunnySide';
 import WhySpecial from './components/WhySpecial';
 import BirthdayLetter from './components/BirthdayLetter';
 import FinalSurprise from './components/FinalSurprise';
@@ -41,7 +40,7 @@ function SectionDivider({ emoji = '✨', label }) {
 
 export default function App() {
   const [lampOn, setLampOn] = useState(false);
-  const [gateCleared, setGateCleared] = useState(true);
+  const [gateCleared, setGateCleared] = useState(false);
   const [opened, setOpened] = useState(false);
 
   const { scrollYProgress } = useScroll();
@@ -119,10 +118,6 @@ export default function App() {
 
             {/* 4. Things I Never Told You */}
             <NeverToldYou />
-            <SectionDivider emoji="😂" label="Evidence" />
-
-            {/* 5. Funny Side */}
-            <FunnySide />
             <SectionDivider emoji="⭐" label="Stars" />
 
             {/* 6. Why You're Special */}
@@ -154,6 +149,31 @@ export default function App() {
               <p style={{ color: '#2a1a3e', fontSize: '0.7rem', marginTop: 8 }}>
                 A Little Universe Made for You
               </p>
+              <div style={{ marginTop: 16 }}>
+                <button
+                  onClick={() => setGateCleared(false)}
+                  style={{
+                    background: 'rgba(168, 85, 247, 0.15)',
+                    border: '1px solid rgba(168, 85, 247, 0.3)',
+                    color: '#c4b5fd',
+                    padding: '8px 20px',
+                    borderRadius: 20,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(168, 85, 247, 0.3)';
+                    e.currentTarget.style.color = '#fff';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(168, 85, 247, 0.15)';
+                    e.currentTarget.style.color = '#c4b5fd';
+                  }}
+                >
+                  🦋 Replay Best Friend Gate
+                </button>
+              </div>
             </footer>
           </motion.main>
         </>
