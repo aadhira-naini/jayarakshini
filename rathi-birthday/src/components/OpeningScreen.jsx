@@ -480,7 +480,6 @@ export default function OpeningScreen({ onOpen }) {
   const [phase, setPhase] = useState('hint'); // hint → opened → animating → done
   const [showBalloons, setShowBalloons] = useState(false);
   const [showRays, setShowRays] = useState(false);
-  const audioRef = useRef(null);
 
   const fireConfetti = () => {
     const end = Date.now() + 3000;
@@ -498,10 +497,6 @@ export default function OpeningScreen({ onOpen }) {
     setPhase('opened');
     setShowBalloons(true);
     fireConfetti();
-    if (audioRef.current) {
-      audioRef.current.volume = 0.4;
-      audioRef.current.play().catch(() => {});
-    }
     setTimeout(() => {
       setPhase('animating');
       setTimeout(() => {
@@ -604,9 +599,6 @@ export default function OpeningScreen({ onOpen }) {
           >
             <Moon />
           </motion.div>
-
-          {/* Audio */}
-          <audio ref={audioRef} src="/birthday.mp3" loop />
 
           {/* Balloons */}
           {showBalloons && [...Array(12)].map((_, i) => (

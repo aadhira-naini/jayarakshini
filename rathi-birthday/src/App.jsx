@@ -12,6 +12,7 @@ import WhySpecial from './components/WhySpecial';
 import BirthdayLetter from './components/BirthdayLetter';
 import FinalSurprise from './components/FinalSurprise';
 import Mascot from './components/Mascot';
+import BackgroundMusic from './components/BackgroundMusic';
 import './index.css';
 
 function SectionDivider({ emoji = '✨', label }) {
@@ -50,24 +51,24 @@ export default function App() {
     restDelta: 0.001
   });
 
-  // Step 1: Lamp intro (dark room, pull cord)
-  if (!lampOn) {
-    return <LampIntro onLampOn={() => setLampOn(true)} />;
-  }
-
-  // Step 2: Butterfly catching + friend gate quiz
-  if (!gateCleared) {
-    return (
-      <>
-        <StarsBg />
-        <BestFriendGate onPass={() => setGateCleared(true)} />
-      </>
-    );
-  }
-
   return (
-    <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <StarsBg />
+    <>
+      {/* Background music persistent across entire website lifecycle */}
+      <BackgroundMusic />
+
+      {!lampOn ? (
+        /* Step 1: Lamp intro (dark room, pull cord) */
+        <LampIntro onLampOn={() => setLampOn(true)} />
+      ) : !gateCleared ? (
+        /* Step 2: Butterfly catching + friend gate quiz */
+        <>
+          <StarsBg />
+          <BestFriendGate onPass={() => setGateCleared(true)} />
+        </>
+      ) : (
+        /* Step 3: Main celebration & opening screen */
+        <div style={{ position: 'relative', minHeight: '100vh' }}>
+          <StarsBg />
 
       {/* Opening screen overlay */}
       <AnimatePresence>
@@ -178,7 +179,9 @@ export default function App() {
           </motion.main>
         </>
       )}
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 
